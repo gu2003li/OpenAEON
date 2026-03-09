@@ -5,6 +5,7 @@
 OpenAEON represents the deep evolutionary metamorphosis of the **OpenClaw** architecture. By injecting dialectical philosophy, entropy reduction theory, and predictive coding into the core, it transmutes OpenClaw from a passive script collection into a **self-evolving, fractal intelligent entity**.
 
 ---
+![Uploading image_e935a21f.png…]()
 
 ## 🧬 Architectural Vision: From Tool to Entity
 
