@@ -9,6 +9,11 @@
 ---
 
 ![OpenAEON Architecture](https://github.com/user-attachments/assets/81111427-3e68-4620-b6e9-e3ba5f36a5ea)
+---
+
+[![Demo Video](https://img.shields.io/badge/Demo-Video-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/shorts/27XGSMPZXjA)
+> *[English] Watch the video demonstration of OpenAEON in action.*
+> *[中文] 点击查看 OpenAEON 视频演示。*
 
 ---
 
