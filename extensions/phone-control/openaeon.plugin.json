@@ -1,7 +1,7 @@
 {
   "id": "phone-control",
   "name": "Phone Control",
-  "description": "Arm/disarm high-risk phone node commands (camera/screen/writes) with an optional auto-expiry.",
+  "description": "启用/禁用高风险手机节点命令（摄像头/屏幕/写入），并支持可选的自动失效功能。",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
