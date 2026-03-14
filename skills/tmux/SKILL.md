@@ -1,109 +1,109 @@
 ---
 name: tmux
-description: Remote-control tmux sessions for interactive CLIs by sending keystrokes and scraping pane output.
+description: 通过发送按键和抓取面板输出远程控制 tmux 会话，用于交互式 CLI。
 metadata:
   { "openaeon": { "emoji": "🧵", "os": ["darwin", "linux"], "requires": { "bins": ["tmux"] } } }
 ---
 
-# tmux Session Control
+# tmux 会话控制
 
-Control tmux sessions by sending keystrokes and reading output. Essential for managing Claude Code sessions.
+通过发送按键和读取输出控制 tmux 会话。管理 Claude Code 会话必不可少。
 
-## When to Use
+## 使用场景
 
-✅ **USE this skill when:**
+✅ **使用此技能时：**
 
-- Monitoring Claude/Codex sessions in tmux
-- Sending input to interactive terminal applications
-- Scraping output from long-running processes in tmux
-- Navigating tmux panes/windows programmatically
-- Checking on background work in existing sessions
+- 监控 tmux 中的 Claude/Codex 会话
+- 向交互式终端应用程序发送输入
+- 从 tmux 中长时间运行的进程抓取输出
+- 以编程方式导航 tmux 面板/窗口
+- 检查现有会话中的后台工作
 
-## When NOT to Use
+## 不使用场景
 
-❌ **DON'T use this skill when:**
+❌ **不使用此技能时：**
 
-- Running one-off shell commands → use `exec` tool directly
-- Starting new background processes → use `exec` with `background:true`
-- Non-interactive scripts → use `exec` tool
-- The process isn't in tmux
-- You need to create a new tmux session → use `exec` with `tmux new-session`
+- 运行一次性 shell 命令 → 直接使用 `exec` 工具
+- 启动新的后台进程 → 使用 `exec` 加 `background:true`
+- 非交互式脚本 → 使用 `exec` 工具
+- 进程不在 tmux 中
+- 需要创建新的 tmux 会话 → 使用 `exec` 加 `tmux new-session`
 
-## Example Sessions
+## 示例会话
 
-| Session                 | Purpose                     |
+| 会话                 | 用途                     |
 | ----------------------- | --------------------------- |
-| `shared`                | Primary interactive session |
-| `worker-2` - `worker-8` | Parallel worker sessions    |
+| `shared`                | 主要交互式会话 |
+| `worker-2` - `worker-8` | 并行工作会话    |
 
-## Common Commands
+## 常用命令
 
-### List Sessions
+### 列出会话
 
 ```bash
 tmux list-sessions
 tmux ls
 ```
 
-### Capture Output
+### 捕获输出
 
 ```bash
-# Last 20 lines of pane
+# 面板最后 20 行
 tmux capture-pane -t shared -p | tail -20
 
-# Entire scrollback
+# 整个回滚历史
 tmux capture-pane -t shared -p -S -
 
-# Specific pane in window
+# 窗口中的特定面板
 tmux capture-pane -t shared:0.0 -p
 ```
 
-### Send Keys
+### 发送按键
 
 ```bash
-# Send text (doesn't press Enter)
+# 发送文本（不按回车）
 tmux send-keys -t shared "hello"
 
-# Send text + Enter
+# 发送文本 + 回车
 tmux send-keys -t shared "y" Enter
 
-# Send special keys
+# 发送特殊键
 tmux send-keys -t shared Enter
 tmux send-keys -t shared Escape
 tmux send-keys -t shared C-c          # Ctrl+C
 tmux send-keys -t shared C-d          # Ctrl+D (EOF)
-tmux send-keys -t shared C-z          # Ctrl+Z (suspend)
+tmux send-keys -t shared C-z          # Ctrl+Z (挂起)
 ```
 
-### Window/Pane Navigation
+### 窗口/面板导航
 
 ```bash
-# Select window
+# 选择窗口
 tmux select-window -t shared:0
 
-# Select pane
+# 选择面板
 tmux select-pane -t shared:0.1
 
-# List windows
+# 列出窗口
 tmux list-windows -t shared
 ```
 
-### Session Management
+### 会话管理
 
 ```bash
-# Create new session
+# 创建新会话
 tmux new-session -d -s newsession
 
-# Kill session
+# 杀死会话
 tmux kill-session -t sessionname
 
-# Rename session
+# 重命名会话
 tmux rename-session -t old new
 ```
 
-## Sending Input Safely
+## 安全发送输入
 
-For interactive TUIs (Claude Code, Codex, etc.), split text and Enter into separate sends to avoid paste/multiline edge cases:
+对于交互式 TUI（Claude Code、Codex 等），将文本和 Enter 拆分为单独发送，以避免粘贴/多行边缘情况：
 
 ```bash
 tmux send-keys -t shared -l -- "Please apply the patch in src/foo.ts"
@@ -111,26 +111,26 @@ sleep 0.1
 tmux send-keys -t shared Enter
 ```
 
-## Claude Code Session Patterns
+## Claude Code 会话模式
 
-### Check if Session Needs Input
+### 检查会话是否需要输入
 
 ```bash
-# Look for prompts
+# 查找提示符
 tmux capture-pane -t worker-3 -p | tail -10 | grep -E "❯|Yes.*No|proceed|permission"
 ```
 
-### Approve Claude Code Prompt
+### 批准 Claude Code 提示
 
 ```bash
-# Send 'y' and Enter
+# 发送 'y' 和 Enter
 tmux send-keys -t worker-3 'y' Enter
 
-# Or select numbered option
+# 或选择编号选项
 tmux send-keys -t worker-3 '2' Enter
 ```
 
-### Check All Sessions Status
+### 检查所有会话状态
 
 ```bash
 for s in shared worker-2 worker-3 worker-4 worker-5 worker-6 worker-7 worker-8; do
@@ -139,15 +139,15 @@ for s in shared worker-2 worker-3 worker-4 worker-5 worker-6 worker-7 worker-8; 
 done
 ```
 
-### Send Task to Session
+### 发送任务到会话
 
 ```bash
 tmux send-keys -t worker-4 "Fix the bug in auth.js" Enter
 ```
 
-## Notes
+## 注意事项
 
-- Use `capture-pane -p` to print to stdout (essential for scripting)
-- `-S -` captures entire scrollback history
-- Target format: `session:window.pane` (e.g., `shared:0.0`)
-- Sessions persist across SSH disconnects
+- 使用 `capture-pane -p` 打印到 stdout（对脚本至关重要）
+- `-S -` 捕获整个回滚历史
+- 目标格式：`session:window.pane`（例如 `shared:0.0`）
+- 会话在 SSH 断开后仍然保持
