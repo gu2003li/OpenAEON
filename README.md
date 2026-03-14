@@ -80,7 +80,7 @@ The fastest way to experience OpenAEON is via our one-line installer:
 体验 OpenAEON 最快的方式是通过我们的单行安装程序：
 
 ```bash
-# macOS / Linux / WSL2
+# 上游 / macOS / Linux / WSL2
 curl -fsSL https://openaeon.ai/install.sh | bash
 ```
 
@@ -120,6 +120,7 @@ For headless or containerized environments:
 # 上游
 git clone https://github.com/openaeon/OpenAEON.git
 cd OpenAEON
+./docker-setup.sh
 
 # 本仓库
 git clone https://github.com/gu2003li/OpenAEON.git
