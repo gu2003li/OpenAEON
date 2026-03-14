@@ -1,7 +1,7 @@
 {
   "id": "talk-voice",
   "name": "Talk Voice",
-  "description": "管理 Talk 语音选择（列出/设置）",
+  "description": "Manage Talk voice selection (list/set).",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
