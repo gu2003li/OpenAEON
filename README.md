@@ -81,7 +81,7 @@ For contributors or those who want to run from a local checkout:
 
 ```bash
 # 克隆仓库
-git clone https://github.com/gu2003li/OpenAEON-CN.git
+git clone https://github.com/gu2003li/OpenAEON.git
 cd OpenAEON
 
 # 安装项目依赖
@@ -103,8 +103,8 @@ For headless or containerized environments:
 对于无头或容器化环境：
 
 ```bash
-git clone https://github.com/gu2003li/OpenAEON-CN.git
-cd OpenAEON-CN
+git clone https://github.com/gu2003li/OpenAEON.git
+cd OpenAEON
 ./docker-setup.sh
 ```
 
