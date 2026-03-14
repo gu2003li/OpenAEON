@@ -82,7 +82,7 @@ For contributors or those who want to run from a local checkout:
 ```bash
 # 克隆仓库
 git clone https://github.com/gu2003li/OpenAEON-CN.git
-cd OpenAEON-CN
+cd OpenAEON
 
 # 安装项目依赖
 pnpm install
