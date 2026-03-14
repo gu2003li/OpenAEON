@@ -82,7 +82,7 @@ For contributors or those who want to run from a local checkout:
 ```bash
 # 克隆仓库
 git clone https://github.com/gu2003li/OpenAEON-CN.git
-cd OpenAEON
+cd OpenAEON-CN
 
 # 安装项目依赖
 pnpm install
@@ -104,7 +104,7 @@ For headless or containerized environments:
 
 ```bash
 git clone https://github.com/gu2003li/OpenAEON-CN.git
-cd OpenAEON
+cd OpenAEON-CN
 ./docker-setup.sh
 ```
 
