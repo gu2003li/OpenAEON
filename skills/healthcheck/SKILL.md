@@ -1,245 +1,110 @@
 ---
 name: healthcheck
-description: Host security hardening and risk-tolerance configuration for OpenAEON deployments. Use when a user asks for security audits, firewall/SSH/update hardening, risk posture, exposure review, OpenAEON cron scheduling for periodic checks, or version status checks on a machine running OpenAEON (laptop, workstation, Pi, VPS).
+description: OpenAEON 部署的主机安全加固和风险容忍配置。当用户要求安全审计、防火墙/SSH/更新加固、风险态势、暴露面审查、OpenAEON 定时任务检查或版本状态检查时使用。
 ---
 
-# OpenAEON Host Hardening
+# OpenAEON 主机加固
 
-## Overview
+## 概述
 
-Assess and harden the host running OpenAEON, then align it to a user-defined risk tolerance without breaking access. Use OpenAEON security tooling as a first-class signal, but treat OS hardening as a separate, explicit set of steps.
+评估并加固运行 OpenAEON 的主机，然后将其对齐到用户定义的风险容忍度，同时不破坏访问权限。将 OpenAEON 安全工具作为一等信号，但将操作系统加固视为单独的、明确定义的步骤。
 
-## Core rules
+## 核心规则
 
-- Recommend running this skill with a state-of-the-art model (e.g., Opus 4.5, GPT 5.2+). The agent should self-check the current model and suggest switching if below that level; do not block execution.
-- Require explicit approval before any state-changing action.
-- Do not modify remote access settings without confirming how the user connects.
-- Prefer reversible, staged changes with a rollback plan.
-- Never claim OpenAEON changes the host firewall, SSH, or OS updates; it does not.
-- If role/identity is unknown, provide recommendations only.
-- Formatting: every set of user choices must be numbered so the user can reply with a single digit.
-- System-level backups are recommended; try to verify status.
+- 建议使用最先进的模型运行此技能（如 Opus 4.5、GPT 5.2+）。代理应自检当前模型，如低于该级别则建议切换，但不阻止执行。
+- 任何状态更改操作之前需要明确批准。
+- 不确认用户如何连接就不要修改远程访问设置。
+- 更喜欢可逆的、分阶段的更改，并附带回滚计划。
+- 永远不要声称 OpenAEON 更改了主机防火墙、SSH 或系统更新；它不会。
+- 如果角色/身份未知，仅提供建议。
+- 格式：每组用户选择必须编号，以便用户可以回复单个数字。
+- 建议进行系统级备份；尝试验证状态。
 
-## Workflow (follow in order)
+## 工作流程（按顺序执行）
 
-### 0) Model self-check (non-blocking)
+### 0) 模型自检（非阻塞）
 
-Before starting, check the current model. If it is below state-of-the-art (e.g., Opus 4.5, GPT 5.2+), recommend switching. Do not block execution.
+开始前检查当前模型。如果低于最先进水平（如 Opus 4.5、GPT 5.2+），建议切换。不阻止执行。
 
-### 1) Establish context (read-only)
+### 1) 建立上下文（只读）
 
-Try to infer 1–5 from the environment before asking. Prefer simple, non-technical questions if you need confirmation.
+在提问之前尝试从环境推断 1–5。如需确认，优先使用简单的非技术问题。
 
-Determine (in order):
+按顺序确定：
 
-1. OS and version (Linux/macOS/Windows), container vs host.
-2. Privilege level (root/admin vs user).
-3. Access path (local console, SSH, RDP, tailnet).
-4. Network exposure (public IP, reverse proxy, tunnel).
-5. OpenAEON gateway status and bind address.
-6. Backup system and status (e.g., Time Machine, system images, snapshots).
-7. Deployment context (local mac app, headless gateway host, remote gateway, container/CI).
-8. Disk encryption status (FileVault/LUKS/BitLocker).
-9. OS automatic security updates status.
-   Note: these are not blocking items, but are highly recommended, especially if OpenAEON can access sensitive data.
-10. Usage mode for a personal assistant with full access (local workstation vs headless/remote vs other).
+1. 操作系统和版本（Linux/macOS/Windows），容器还是主机。
+2. 权限级别（root/管理员 vs 用户）。
+3. 访问路径（本地控制台、SSH、RDP、tailnet）。
+4. 网络暴露（公网 IP、反向代理、隧道）。
+5. OpenAEON 网关状态和绑定地址。
+6. 备份系统和状态（如 Time Machine、系统镜像、快照）。
+7. 部署上下文（本地 mac 应用、头戴式网关主机、远程网关、容器/CI）。
+8. 磁盘加密状态（FileVault/LUKS/BitLocker）。
+9. 操作系统自动安全更新状态。
+10. 具有完全访问权限的个人助手使用模式（本地工作站 vs 头戴式/远程 vs 其他）。
 
-First ask once for permission to run read-only checks. If granted, run them by default and only ask questions for items you cannot infer or verify. Do not ask for information already visible in runtime or command output. Keep the permission ask as a single sentence, and list follow-up info needed as an unordered list (not numbered) unless you are presenting selectable choices.
+首先请求一次运行只读检查的许可。如果获得批准，默认运行它们，仅对无法推断或验证的项目提问。不要询问运行时或命令输出中已经可见的信息。保持许可请求为一句话，并将后续需要的信息列为无序列表（除非呈现可选选择）。
 
-If you must ask, use non-technical prompts:
+### 2) 运行 OpenAEON 安全审计（只读）
 
-- “Are you using a Mac, Windows PC, or Linux?”
-- “Are you logged in directly on the machine, or connecting from another computer?”
-- “Is this machine reachable from the public internet, or only on your home/network?”
-- “Do you have backups enabled (e.g., Time Machine), and are they current?”
-- “Is disk encryption turned on (FileVault/BitLocker/LUKS)?”
-- “Are automatic security updates enabled?”
-- “How do you use this machine?”
-  Examples:
-  - Personal machine shared with the assistant
-  - Dedicated local machine for the assistant
-  - Dedicated remote machine/server accessed remotely (always on)
-  - Something else?
+作为默认只读检查的一部分，运行 `openaeon security audit --deep`。
 
-Only ask for the risk profile after system context is known.
+### 3) 检查 OpenAEON 版本/更新状态（只读）
 
-If the user grants read-only permission, run the OS-appropriate checks by default. If not, offer them (numbered). Examples:
+运行 `openaeon update status`。
 
-1. OS: `uname -a`, `sw_vers`, `cat /etc/os-release`.
-2. Listening ports:
-   - Linux: `ss -ltnup` (or `ss -ltnp` if `-u` unsupported).
-   - macOS: `lsof -nP -iTCP -sTCP:LISTEN`.
-3. Firewall status:
-   - Linux: `ufw status`, `firewall-cmd --state`, `nft list ruleset` (pick what is installed).
-   - macOS: `/usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate` and `pfctl -s info`.
-4. Backups (macOS): `tmutil status` (if Time Machine is used).
+### 4) 确定风险容忍度
 
-### 2) Run OpenAEON security audits (read-only)
+让用户选择或确认风险态势以及任何需要的服务/端口。
 
-As part of the default read-only checks, run `openaeon security audit --deep`. Only offer alternatives if the user requests them:
+提供建议的画像作为可选默认值（编号）：
 
-1. `openaeon security audit` (faster, non-probing)
-2. `openaeon security audit --json` (structured output)
+1. 家庭/工作站平衡（最常见）：防火墙开启并使用合理默认值，远程访问限制在局域网或 tailnet。
+2. VPS 加固：默认拒绝入站防火墙，最小开放端口，仅密钥 SSH，无 root 登录，自动安全更新。
+3. 开发者便利：允许更多本地服务，明确暴露警告，仍然接受审计。
+4. 自定义：用户定义的约束。
 
-Offer to apply OpenAEON safe defaults (numbered):
+### 5) 生成修复计划
 
-1. `openaeon security audit --fix`
+提供包含以下内容的计划：
 
-Be explicit that `--fix` only tightens OpenAEON defaults and file permissions. It does not change host firewall, SSH, or OS update policies.
+- 目标画像
+- 当前态势摘要
+- 与目标的差距
+- 逐步修复及确切命令
+- 访问保留策略和回滚
 
-If browser control is enabled, recommend that 2FA be enabled on all important accounts, with hardware keys preferred and SMS not sufficient.
+### 6) 执行
 
-### 3) Check OpenAEON version/update status (read-only)
+提供以下选择：
 
-As part of the default read-only checks, run `openaeon update status`.
+1. 为我执行（引导式，逐步批准）
+2. 仅显示计划
 
-Report the current channel and whether an update is available.
+### 7) 验证和报告
 
-### 4) Determine risk tolerance (after system context)
+重新检查防火墙状态、监听端口、远程访问和 OpenAEON 安全审计。
 
-Ask the user to pick or confirm a risk posture and any required open services/ports (numbered choices below).
-Do not pigeonhole into fixed profiles; if the user prefers, capture requirements instead of choosing a profile.
-Offer suggested profiles as optional defaults (numbered). Note that most users pick Home/Workstation Balanced:
+## 所需确认
 
-1. Home/Workstation Balanced (most common): firewall on with reasonable defaults, remote access restricted to LAN or tailnet.
-2. VPS Hardened: deny-by-default inbound firewall, minimal open ports, key-only SSH, no root login, automatic security updates.
-3. Developer Convenience: more local services allowed, explicit exposure warnings, still audited.
-4. Custom: user-defined constraints (services, exposure, update cadence, access methods).
+需要明确批准：
 
-### 5) Produce a remediation plan
+- 防火墙规则更改
+- 打开/关闭端口
+- SSH/RDP 配置更改
+- 安装/删除软件包
+- 启用/禁用服务
+- 用户/组修改
+- 计划任务或启动持久化
+- 更新策略更改
+- 访问敏感文件或凭据
 
-Provide a plan that includes:
-
-- Target profile
-- Current posture summary
-- Gaps vs target
-- Step-by-step remediation with exact commands
-- Access-preservation strategy and rollback
-- Risks and potential lockout scenarios
-- Least-privilege notes (e.g., avoid admin usage, tighten ownership/permissions where safe)
-- Credential hygiene notes (location of OpenAEON creds, prefer disk encryption)
-
-Always show the plan before any changes.
-
-### 6) Offer execution options
-
-Offer one of these choices (numbered so users can reply with a single digit):
-
-1. Do it for me (guided, step-by-step approvals)
-2. Show plan only
-3. Fix only critical issues
-4. Export commands for later
-
-### 7) Execute with confirmations
-
-For each step:
-
-- Show the exact command
-- Explain impact and rollback
-- Confirm access will remain available
-- Stop on unexpected output and ask for guidance
-
-### 8) Verify and report
-
-Re-check:
-
-- Firewall status
-- Listening ports
-- Remote access still works
-- OpenAEON security audit (re-run)
-
-Deliver a final posture report and note any deferred items.
-
-## Required confirmations (always)
-
-Require explicit approval for:
-
-- Firewall rule changes
-- Opening/closing ports
-- SSH/RDP configuration changes
-- Installing/removing packages
-- Enabling/disabling services
-- User/group modifications
-- Scheduling tasks or startup persistence
-- Update policy changes
-- Access to sensitive files or credentials
-
-If unsure, ask.
-
-## Periodic checks
-
-After OpenAEON install or first hardening pass, run at least one baseline audit and version check:
+## 定期检查
 
 - `openaeon security audit`
 - `openaeon security audit --deep`
 - `openaeon update status`
 
-Ongoing monitoring is recommended. Use the OpenAEON cron tool/CLI to schedule periodic audits (Gateway scheduler). Do not create scheduled tasks without explicit approval. Store outputs in a user-approved location and avoid secrets in logs.
-When scheduling headless cron runs, include a note in the output that instructs the user to call `healthcheck` so issues can be fixed.
+## 内存写入
 
-### Required prompt to schedule (always)
-
-After any audit or hardening pass, explicitly offer scheduling and require a direct response. Use a short prompt like (numbered):
-
-1. “Do you want me to schedule periodic audits (e.g., daily/weekly) via `openaeon cron add`?”
-
-If the user says yes, ask for:
-
-- cadence (daily/weekly), preferred time window, and output location
-- whether to also schedule `openaeon update status`
-
-Use a stable cron job name so updates are deterministic. Prefer exact names:
-
-- `healthcheck:security-audit`
-- `healthcheck:update-status`
-
-Before creating, `openaeon cron list` and match on exact `name`. If found, `openaeon cron edit <id> ...`.
-If not found, `openaeon cron add --name <name> ...`.
-
-Also offer a periodic version check so the user can decide when to update (numbered):
-
-1. `openaeon update status` (preferred for source checkouts and channels)
-2. `npm view openaeon version` (published npm version)
-
-## OpenAEON command accuracy
-
-Use only supported commands and flags:
-
-- `openaeon security audit [--deep] [--fix] [--json]`
-- `openaeon status` / `openaeon status --deep`
-- `openaeon health --json`
-- `openaeon update status`
-- `openaeon cron add|list|runs|run`
-
-Do not invent CLI flags or imply OpenAEON enforces host firewall/SSH policies.
-
-## Logging and audit trail
-
-Record:
-
-- Gateway identity and role
-- Plan ID and timestamp
-- Approved steps and exact commands
-- Exit codes and files modified (best effort)
-
-Redact secrets. Never log tokens or full credential contents.
-
-## Memory writes (conditional)
-
-Only write to memory files when the user explicitly opts in and the session is a private/local workspace
-(per `docs/reference/templates/AGENTS.md`). Otherwise provide a redacted, paste-ready summary the user can
-decide to save elsewhere.
-
-Follow the durable-memory prompt format used by OpenAEON compaction:
-
-- Write lasting notes to `memory/YYYY-MM-DD.md`.
-
-After each audit/hardening run, if opted-in, append a short, dated summary to `memory/YYYY-MM-DD.md`
-(what was checked, key findings, actions taken, any scheduled cron jobs, key decisions,
-and all commands executed). Append-only: never overwrite existing entries.
-Redact sensitive host details (usernames, hostnames, IPs, serials, service names, tokens).
-If there are durable preferences or decisions (risk posture, allowed ports, update policy),
-also update `MEMORY.md` (long-term memory is optional and only used in private sessions).
-
-If the session cannot write to the workspace, ask for permission or provide exact entries
-the user can paste into the memory files.
+每次审计/加固运行后，追加简短的、日期的摘要到 `memory/YYYY-MM-DD.md`。
