@@ -1,7 +1,7 @@
 {
   "id": "device-pair",
   "name": "Device Pairing",
-  "description": "生成设置代码并批准设备配对请求。",
+  "description": "Generate setup codes and approve device pairing requests.",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
