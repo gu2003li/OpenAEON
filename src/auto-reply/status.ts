@@ -184,7 +184,7 @@ const formatQueueDetails = (queue?: QueueStatus) => {
   if (!queue) {
     return "";
   }
-  const depth = typeof queue.depth === "number" ? `depth ${queue.depth}` : null;
+  const depth = typeof queue.depth === "number" ? `深度 ${queue.depth}` : null;
   if (!queue.showDetails) {
     return depth ? ` (${depth})` : "";
   }
@@ -195,11 +195,11 @@ const formatQueueDetails = (queue?: QueueStatus) => {
   if (typeof queue.debounceMs === "number") {
     const ms = Math.max(0, Math.round(queue.debounceMs));
     const label =
-      ms >= 1000 ? `${ms % 1000 === 0 ? ms / 1000 : (ms / 1000).toFixed(1)}s` : `${ms}ms`;
-    detailParts.push(`debounce ${label}`);
+      ms >= 1000 ? `${ms % 1000 === 0 ? ms / 1000 : (ms / 1000).toFixed(1)}秒` : `${ms}毫秒`;
+    detailParts.push(`防抖 ${label}`);
   }
   if (typeof queue.cap === "number") {
-    detailParts.push(`cap ${queue.cap}`);
+    detailParts.push(`上限 ${queue.cap}`);
   }
   if (queue.dropPolicy) {
     detailParts.push(`drop ${queue.dropPolicy}`);
@@ -558,26 +558,27 @@ export function buildStatusMessage(args: StatusArgs): string {
     .join(" · ");
 
   const queueMode = args.queue?.mode ?? "unknown";
+  const queueModeLabel = queueMode === "collect" ? "收集" : queueMode === "eager" ? "立即" : queueMode === "batch" ? "批量" : queueMode;
   const queueDetails = formatQueueDetails(args.queue);
   const verboseLabel =
-    verboseLevel === "full" ? "verbose:full" : verboseLevel === "on" ? "verbose" : null;
+    verboseLevel === "full" ? "详细:全开" : verboseLevel === "on" ? "详细" : null;
   const elevatedLabel =
     elevatedLevel && elevatedLevel !== "off"
       ? elevatedLevel === "on"
-        ? "elevated"
-        : `elevated:${elevatedLevel}`
+        ? "提升模式"
+        : `提升:${elevatedLevel}`
       : null;
   const optionParts = [
     `运行时: ${runtime.label}`,
     `思考: ${thinkLevel}`,
     verboseLabel,
-    reasoningLevel !== "off" ? `Reasoning: ${reasoningLevel}` : null,
+    reasoningLevel !== "off" ? `推理: ${reasoningLevel === "stream" ? "流式" : reasoningLevel}` : null,
     elevatedLabel,
   ];
   const optionsLine = optionParts.filter(Boolean).join(" · ");
   const activationParts = [
     groupActivationValue ? `👥 激活: ${groupActivationValue}` : null,
-    `🪢 队列: ${queueMode}${queueDetails}`,
+    `🪢 队列: ${queueModeLabel}${queueDetails}`,
   ];
   const activationLine = activationParts.filter(Boolean).join(" · ");
 
@@ -622,7 +623,17 @@ export function buildStatusMessage(args: StatusArgs): string {
       : undefined;
   const costLabel = showCost && hasUsage ? formatUsd(cost) : undefined;
 
-  const selectedAuthLabel = selectedAuthLabelValue ? ` · 🔑 ${selectedAuthLabelValue}` : "";
+  // 翻译认证模式为中文
+  const translateAuthMode = (mode?: string): string => {
+    if (!mode) return "";
+    if (mode === "api-key") return "API密钥";
+    if (mode === "oauth") return "OAuth";
+    if (mode === "token") return "令牌";
+    if (mode === "aws-sdk") return "AWS";
+    if (mode === "mixed") return "混合";
+    return mode;
+  };
+  const selectedAuthLabel = selectedAuthLabelValue ? ` · 🔑 ${translateAuthMode(selectedAuthLabelValue)}` : "";
   const channelModelNote = (() => {
     if (!args.config || !entry) {
       return undefined;
