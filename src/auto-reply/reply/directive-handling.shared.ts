@@ -63,19 +63,19 @@ export function formatElevatedUnavailableText(params: {
 }): string {
   const lines: string[] = [];
   lines.push(
-    `elevated is not available right now (runtime=${params.runtimeSandboxed ? "sandboxed" : "direct"}).`,
+    `提升模式当前不可用 (runtime=${params.runtimeSandboxed ? "sandboxed" : "direct"}).`,
   );
   const failures = params.failures ?? [];
   if (failures.length > 0) {
-    lines.push(`Failing gates: ${failures.map((f) => `${f.gate} (${f.key})`).join(", ")}`);
+    lines.push(`失败的门控: ${failures.map((f) => `${f.gate} (${f.key})`).join(", ")}`);
   } else {
     lines.push(
-      "Fix-it keys: tools.elevated.enabled, tools.elevated.allowFrom.<provider>, agents.list[].tools.elevated.*",
+      "修复键: tools.elevated.enabled, tools.elevated.allowFrom.<provider>, agents.list[].tools.elevated.*",
     );
   }
   if (params.sessionKey) {
     lines.push(
-      `See: ${formatCliCommand(`openaeon sandbox explain --session ${params.sessionKey}`)}`,
+      `参见: ${formatCliCommand(`openaeon sandbox explain --session ${params.sessionKey}`)}`,
     );
   }
   return lines.join("\n");
